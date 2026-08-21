@@ -31,7 +31,7 @@ Webilo Flow is a private, portfolio-oriented product alpha for creating Telegram
 ## Architecture
 
 ```text
-React + TypeScript      Laravel 12                Go Runtime
+React + TypeScript      Laravel 13                Go Runtime
 Dashboard and Builder   Control Plane             Telegram execution
         |                    |                          |
         +---------------- PostgreSQL ------------------+
@@ -50,6 +50,55 @@ apps/runtime    Go runtime
 packages/contracts
                 OpenAPI, JSON Schema, examples
 docs            Product, architecture, roadmap and quality documents
+```
+
+## Development
+
+### Prerequisites
+
+- Node.js and npm for `apps/web`
+- PHP and Composer for `apps/api`
+- Go 1.26.x for `apps/runtime`
+
+### Setup
+
+Install the stock application dependencies:
+
+```text
+npm --prefix apps/web install
+composer --working-dir=apps/api install
+```
+
+Laravel creates an untracked local `.env` from `.env.example` when needed. Generate a local application key before serving the API:
+
+```text
+php apps/api/artisan key:generate
+```
+
+Local PostgreSQL, Redis, and Docker infrastructure are intentionally deferred to M0-02.
+
+### Run
+
+Run each application from a separate terminal:
+
+```text
+npm --prefix apps/web run dev
+php apps/api/artisan serve
+cd apps/runtime && go run .
+```
+
+The M0-01 runtime is a minimal executable and exits immediately; it does not start a server or process work.
+
+### Validate
+
+```text
+npm --prefix apps/web run lint
+npm --prefix apps/web run build
+composer --working-dir=apps/api validate --strict
+php apps/api/artisan --version
+cd apps/api
+php artisan test
+cd apps/runtime && gofmt -d . && go vet ./... && go test ./... && go build ./...
 ```
 
 ## Start here
