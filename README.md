@@ -56,9 +56,35 @@ docs            Product, architecture, roadmap and quality documents
 
 ### Prerequisites
 
+- Docker Desktop with Linux containers and Docker Compose for the complete local stack
 - Node.js and npm for `apps/web`
 - PHP and Composer for `apps/api`
 - Go 1.26.x for `apps/runtime`
+
+### Docker Compose
+
+Start the complete local stack:
+
+```text
+docker compose up --build
+```
+
+The local services are available at:
+
+- Web: `http://localhost:5173`
+- API: `http://localhost:8000`
+- PostgreSQL: `localhost:5432`
+- Redis: `localhost:6379`
+
+Compose waits for native PostgreSQL and Redis readiness checks before starting Laravel. Laravel runs the existing migrations, uses PostgreSQL for durable data, and uses Redis for cache, sessions, and queues. The runtime uses only a signal-aware process lifecycle so it remains running and shuts down cleanly under Compose; it does not add a server, listener, health endpoint, worker loop, queue behavior, or Telegram behavior.
+
+Stop the stack while retaining PostgreSQL data:
+
+```text
+docker compose down
+```
+
+To intentionally remove the local PostgreSQL data volume as well, run `docker compose down --volumes`.
 
 ### Setup
 
@@ -75,7 +101,7 @@ Laravel creates an untracked local `.env` from `.env.example` when needed. Gener
 php apps/api/artisan key:generate
 ```
 
-Local PostgreSQL, Redis, and Docker infrastructure are intentionally deferred to M0-02.
+The native setup can use separately installed PostgreSQL and Redis. The Docker Compose setup above supplies both dependencies and the required Laravel connection configuration.
 
 ### Run
 

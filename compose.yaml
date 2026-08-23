@@ -1,0 +1,92 @@
+services:
+  web:
+    build:
+      context: ./apps/web
+    init: true
+    ports:
+      - "127.0.0.1:5173:5173"
+    volumes:
+      - ./apps/web:/app
+      - web_node_modules:/app/node_modules
+
+  api:
+    build:
+      context: ./apps/api
+    init: true
+    environment:
+      APP_ENV: local
+      APP_DEBUG: "true"
+      APP_URL: http://localhost:8000
+      DB_CONNECTION: pgsql
+      DB_HOST: postgres
+      DB_PORT: "5432"
+      DB_DATABASE: webilo_flow
+      DB_USERNAME: webilo_api
+      DB_PASSWORD: local_only
+      CACHE_STORE: redis
+      SESSION_DRIVER: redis
+      QUEUE_CONNECTION: redis
+      REDIS_CLIENT: phpredis
+      REDIS_HOST: redis
+      REDIS_PORT: "6379"
+    command:
+      - /bin/sh
+      - -c
+      - |
+        set -e
+        export APP_KEY="$$(php artisan key:generate --show --no-ansi)"
+        php artisan migrate --force
+        exec php artisan serve --host=0.0.0.0 --port=8000
+    depends_on:
+      postgres:
+        condition: service_healthy
+      redis:
+        condition: service_healthy
+    ports:
+      - "127.0.0.1:8000:8000"
+    volumes:
+      - ./apps/api:/app
+      - api_vendor:/app/vendor
+
+  runtime:
+    build:
+      context: ./apps/runtime
+    init: true
+
+  postgres:
+    image: postgres:17.11-alpine
+    environment:
+      POSTGRES_DB: webilo_flow
+      POSTGRES_USER: webilo_api
+      POSTGRES_PASSWORD: local_only
+    healthcheck:
+      test:
+        - CMD-SHELL
+        - pg_isready -U webilo_api -d webilo_flow
+      interval: 5s
+      timeout: 5s
+      retries: 10
+      start_period: 5s
+    ports:
+      - 127.0.0.1:5432:5432
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+
+  redis:
+    image: redis:7.4.11-alpine
+    healthcheck:
+      test:
+        - CMD
+        - redis-cli
+        - ping
+      interval: 5s
+      timeout: 5s
+      retries: 10
+      start_period: 5s
+    ports:
+      - 127.0.0.1:6379:6379
+
+volumes:
+  api_vendor:
+  postgres_data:
+  web_node_modules:
