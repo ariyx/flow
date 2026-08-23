@@ -110,3 +110,71 @@ Not completed:
 Risks or follow-ups:
 - ...
 ```
+
+## Codex agent delegation
+
+Project-scoped Codex agents are available in `.codex/agents/`.
+
+Use delegated agents when specialization, independent review, or read-only
+parallel investigation materially improves the result. Do not delegate work
+only for the sake of using multiple agents.
+
+All delegated agents must follow this `AGENTS.md`, the current execution plan,
+the current milestone, acceptance criteria, relevant documentation and accepted
+ADRs. Project rules override generic preferences in an agent's own instructions.
+
+Available project agents:
+
+- `Codebase Onboarding Engineer`
+  - Use for read-only repository exploration, unfamiliar code paths, ownership
+    mapping and evidence-based codebase understanding.
+  - Prefer this agent before implementation when the relevant area of the
+    codebase is not already understood.
+  - It must not modify files.
+
+- `Minimal Change Engineer`
+  - Use for focused implementation, bug fixes and tasks where strict scope
+    control is important.
+  - Prefer the smallest correct change that satisfies the current acceptance
+    criteria.
+  - Do not perform unrelated cleanup or speculative refactoring.
+
+- `Software Architect`
+  - Use when a task may change application boundaries, contracts, persistence
+    ownership, service responsibilities or other ADR-level architecture.
+  - Do not invoke it automatically for straightforward implementation work.
+  - Existing accepted architecture remains authoritative unless the task
+    explicitly requires reconsideration.
+
+- `Frontend Developer`
+  - Use for specialized work primarily within `apps/web`.
+  - Project scope, existing design decisions and acceptance criteria override
+    generic frontend recommendations.
+
+- `Backend Architect`
+  - Use for specialized Laravel, API, PostgreSQL and Redis work primarily within
+    `apps/api`.
+  - Do not introduce infrastructure, scaling mechanisms or architectural
+    patterns that are not required by the current task.
+
+- `Code Reviewer`
+  - Use for an independent review after non-trivial implementation when it can
+    materially improve confidence.
+  - Review correctness, regressions, security, maintainability, contracts and
+    relevant test coverage.
+  - Findings outside the current task may be reported as follow-ups but must not
+    expand the implementation scope.
+
+Delegation rules:
+
+- The main Codex agent remains responsible for the final result.
+- Delegate bounded tasks with a clear goal, scope and expected output.
+- Prefer parallel delegation for independent read-only investigation.
+- Avoid parallel write tasks that touch overlapping files or responsibilities.
+- Do not let delegated agents expand the current milestone.
+- Do not implement suggestions merely because a delegated agent recommends them.
+- Validate delegated findings against the repository, project documentation and
+  actual test results.
+- Evidence from executed commands and tests takes precedence over claims.
+- If an agent's generic instructions conflict with this repository's rules,
+  follow this repository's rules.
