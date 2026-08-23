@@ -113,7 +113,7 @@ php apps/api/artisan serve
 cd apps/runtime && go run .
 ```
 
-The M0-01 runtime is a minimal executable and exits immediately; it does not start a server or process work.
+The runtime has only a signal-aware process lifecycle for Docker Compose; it does not start a server, health endpoint, Telegram handler, worker, or processing loop.
 
 ### Validate
 
@@ -126,6 +126,21 @@ cd apps/api
 php artisan test
 cd apps/runtime && gofmt -d . && go vet ./... && go test ./... && go build ./...
 ```
+
+## CI checks
+
+GitHub Actions runs these pull-request checks:
+
+```text
+npm --prefix apps/web run lint
+npm --prefix apps/web run typecheck
+npm --prefix apps/web run test
+composer --working-dir=apps/api run lint
+composer --working-dir=apps/api run analyse
+composer --working-dir=apps/api test
+```
+
+Runtime CI fails on unformatted Go files, then runs vet and tests. Contract CI runs `node scripts/validate-contract-examples.mjs`; it validates JSON syntax only when examples exist, while runtime schemas and fixtures remain deferred to M3-01.
 
 ## Start here
 
