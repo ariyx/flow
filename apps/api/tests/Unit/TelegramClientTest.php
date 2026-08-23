@@ -7,6 +7,7 @@ use App\Telegram\FakeTelegramClient;
 use App\Telegram\InvalidTelegramToken;
 use App\Telegram\RealTelegramClient;
 use App\Telegram\TelegramApiException;
+use App\Telegram\WebhookInfo;
 use Illuminate\Support\Facades\Http;
 use Tests\TestCase;
 
@@ -57,5 +58,22 @@ class TelegramClientTest extends TestCase
         $this->expectException(InvalidTelegramToken::class);
 
         (new FakeTelegramClient)->validateToken('any-token');
+    }
+
+    public function test_real_client_sets_a_webhook_with_the_expected_secret_and_reads_its_status(): void
+    {
+        Http::fake([
+            'https://api.telegram.org/botvalid-token/setWebhook' => Http::response(['ok' => true, 'result' => true]),
+            'https://api.telegram.org/botvalid-token/getWebhookInfo' => Http::response(['ok' => true, 'result' => ['url' => 'https://hooks.example.test/telegram/webhooks/01H']]),
+        ]);
+
+        $client = new RealTelegramClient;
+        $client->setWebhook('valid-token', 'https://hooks.example.test/telegram/webhooks/01H', 'secret-token');
+        $info = $client->getWebhookInfo('valid-token');
+
+        $this->assertEquals(new WebhookInfo('https://hooks.example.test/telegram/webhooks/01H'), $info);
+        Http::assertSent(fn ($request): bool => $request->url() === 'https://api.telegram.org/botvalid-token/setWebhook'
+            && $request['url'] === 'https://hooks.example.test/telegram/webhooks/01H'
+            && $request['secret_token'] === 'secret-token');
     }
 }

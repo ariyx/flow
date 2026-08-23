@@ -12,3 +12,4 @@ All notable changes to Webilo Flow will be documented here.
 - M0-03 pull-request quality checks for Web, Laravel, Go, and contract examples.
 - M0-04 Laravel Sanctum cookie-session authentication, password reset endpoints, and an atomically created owner workspace with a ULID identifier for each registered account.
 - M1-02 authenticated Telegram bot connection with M1-01 token validation, encrypted token storage, workspace-scoped bot metadata, and masked token responses.
+- M1-03 automatic Telegram webhook registration with encrypted per-bot secrets, configured public webhook URLs, and safe webhook status overview/detail pages.

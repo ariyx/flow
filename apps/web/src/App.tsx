@@ -6,6 +6,7 @@ import type { ConnectedBot, Session } from './api'
 import { AppShell } from './components/AppShell'
 import { AuthLayout } from './components/AuthLayout'
 import { PasswordInput } from './components/PasswordInput'
+import { BotDetail, BotOverview } from './Bots'
 import { t } from './i18n'
 
 const fieldClass = 'mt-2 h-11 w-full rounded-md border border-line bg-surface-raised px-3 text-sm text-ink outline-none placeholder:text-muted focus:border-accent'
@@ -58,4 +59,4 @@ function ConnectBot() {
 }
 
 function EmptyGraphic() { return <svg aria-hidden='true' className='mx-auto h-28 w-44 text-line' fill='none' viewBox='0 0 176 112'><path d='M29 29h49l25 27h45M29 84l49-19 25-9h45' stroke='currentColor' strokeWidth='1.5' /><rect fill='#161C24' height='24' rx='5' stroke='#7C3AED' width='48' x='5' y='17' /><rect fill='#161C24' height='24' rx='5' stroke='currentColor' width='48' x='54' y='53' /><rect fill='#161C24' height='24' rx='5' stroke='currentColor' width='48' x='123' y='44' /><circle cx='78' cy='29' fill='#7C3AED' r='2.5' /><circle cx='103' cy='56' fill='#7C3AED' r='2.5' /></svg> }
-export default function App() { return <BrowserRouter><Routes><Route path='/login' element={<Login />} /><Route path='/register' element={<Register />} /><Route path='/forgot-password' element={<ForgotPassword />} /><Route path='/reset-password' element={<ResetPassword />} /><Route path='/app' element={<Dashboard />} /><Route path='/bots/connect' element={<ConnectBot />} /><Route path='*' element={<Navigate to='/app' replace />} /></Routes></BrowserRouter> }
+export default function App() { return <BrowserRouter><Routes><Route path='/login' element={<Login />} /><Route path='/register' element={<Register />} /><Route path='/forgot-password' element={<ForgotPassword />} /><Route path='/reset-password' element={<ResetPassword />} /><Route path='/app' element={<Dashboard />} /><Route path='/bots' element={<BotOverview />} /><Route path='/bots/connect' element={<ConnectBot />} /><Route path='/bots/:botId' element={<BotDetail />} /><Route path='*' element={<Navigate to='/app' replace />} /></Routes></BrowserRouter> }

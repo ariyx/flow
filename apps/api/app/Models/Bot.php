@@ -7,7 +7,7 @@ use Illuminate\Database\Eloquent\Concerns\HasUlids;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 
-#[Fillable(['workspace_id', 'telegram_id', 'telegram_username', 'display_name', 'token'])]
+#[Fillable(['workspace_id', 'telegram_id', 'telegram_username', 'display_name', 'token', 'webhook_url', 'webhook_secret', 'webhook_status', 'webhook_error', 'webhook_checked_at'])]
 class Bot extends Model
 {
     use HasUlids;
@@ -16,14 +16,18 @@ class Bot extends Model
 
     protected $keyType = 'string';
 
-    protected $hidden = ['token'];
+    protected $hidden = ['token', 'webhook_secret'];
 
     /**
      * @return array<string, string>
      */
     protected function casts(): array
     {
-        return ['token' => 'encrypted'];
+        return [
+            'token' => 'encrypted',
+            'webhook_secret' => 'encrypted',
+            'webhook_checked_at' => 'datetime',
+        ];
     }
 
     /**

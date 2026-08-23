@@ -9,7 +9,11 @@ export type ConnectedBot = {
   telegram_username: string | null
   display_name: string
   token_masked: string
+  webhook_status: WebhookStatus
+  webhook_checked_at: string | null
 }
+
+export type WebhookStatus = 'healthy' | 'not_configured' | 'mismatch' | 'error'
 
 type ApiErrorBody = { message?: string; errors?: Record<string, string[]> }
 
@@ -66,4 +70,6 @@ export const api = {
   resetPassword: (body: { email: string; token: string; password: string; password_confirmation: string }) => post<void>('/api/v1/reset-password', body),
   session: () => request<Session>('/api/v1/session'),
   connectBot: (token: string) => post<{ bot: ConnectedBot }>('/api/v1/bots', { token }),
+  bots: () => request<{ bots: ConnectedBot[] }>('/api/v1/bots'),
+  bot: (id: string) => request<{ bot: ConnectedBot }>(`/api/v1/bots/${id}`),
 }

@@ -35,4 +35,8 @@ return [
         ],
     ],
 
+    'telegram' => [
+        'webhook_base_url' => env('TELEGRAM_WEBHOOK_BASE_URL'),
+    ],
+
 ];

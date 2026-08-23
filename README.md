@@ -103,6 +103,8 @@ php apps/api/artisan key:generate
 
 The web app uses Sanctum's same-party, cookie-based session flow against `http://localhost:8000`. When running outside Compose, keep `FRONTEND_URL` and `SANCTUM_STATEFUL_DOMAINS` aligned with the Vite origin (default: `http://localhost:5173`). Password-reset mail uses Laravel's configured mailer; the default local configuration writes it to logs and tests use Laravel's array mailer.
 
+Telegram webhook registration requires `TELEGRAM_WEBHOOK_BASE_URL` to be a public HTTPS base URL on a Telegram-supported port. Webilo Flow generates one URL per bot below that base and uses Telegram's secret-token header. Do not configure localhost: it is not a live Telegram webhook destination. Webhook update receiving remains deferred to M3-03, so local development relies on the deterministic Telegram fake and automated tests.
+
 The native setup can use separately installed PostgreSQL and Redis. The Docker Compose setup above supplies both dependencies and the required Laravel connection configuration.
 
 ### Run

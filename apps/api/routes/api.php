@@ -12,7 +12,9 @@ Route::prefix('v1')->group(function (): void {
 
     Route::middleware('auth:sanctum')->group(function (): void {
         Route::get('session', [AuthController::class, 'session']);
+        Route::get('bots', [BotController::class, 'index']);
         Route::post('bots', [BotController::class, 'store']);
+        Route::get('bots/{bot}', [BotController::class, 'show']);
         Route::post('logout', [AuthController::class, 'logout']);
     });
 });

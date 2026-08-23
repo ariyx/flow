@@ -17,6 +17,13 @@ class ConnectBotTest extends TestCase
 {
     use RefreshDatabase;
 
+    protected function setUp(): void
+    {
+        parent::setUp();
+
+        config()->set('services.telegram.webhook_base_url', 'https://hooks.example.test');
+    }
+
     public function test_an_owner_can_connect_a_validated_bot_with_an_encrypted_token(): void
     {
         $workspace = $this->workspace();
@@ -92,7 +99,7 @@ class ConnectBotTest extends TestCase
         $first = $this->workspace();
         $second = $this->workspace();
         $profile = new BotProfile('999', 'unique_bot', 'Unique Bot');
-        $this->fake($profile);
+        $telegram = $this->fake($profile);
 
         $this->actingAs($first->owner)->postJson('/api/v1/bots', ['token' => 'first-token'])->assertCreated();
         $this->actingAs($second->owner)->postJson('/api/v1/bots', ['token' => 'second-token'])
@@ -100,11 +107,15 @@ class ConnectBotTest extends TestCase
             ->assertJsonValidationErrors('token');
 
         $this->assertDatabaseCount('bots', 1);
+        $this->assertCount(1, $telegram->webhookRegistrations);
     }
 
-    private function fake(?BotProfile $profile = null, ?TelegramApiException $failure = null): void
+    private function fake(?BotProfile $profile = null, ?TelegramApiException $failure = null): FakeTelegramClient
     {
-        $this->app->instance(TelegramClient::class, new FakeTelegramClient($profile, $failure));
+        $client = new FakeTelegramClient($profile, $failure);
+        $this->app->instance(TelegramClient::class, $client);
+
+        return $client;
     }
 
     private function workspace(): Workspace
