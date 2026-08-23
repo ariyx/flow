@@ -5,6 +5,15 @@ export type Session = {
 
 type ApiErrorBody = { message?: string; errors?: Record<string, string[]> }
 
+export class ApiError extends Error {
+  public readonly status: number
+
+  constructor(status: number, message: string) {
+    super(message)
+    this.status = status
+  }
+}
+
 const apiUrl = import.meta.env.VITE_API_URL ?? 'http://localhost:8000'
 
 function xsrfToken(): string | undefined {
@@ -32,7 +41,7 @@ async function request<T>(path: string, init: RequestInit = {}, csrf = false): P
 
   if (!response.ok) {
     const body = (await response.json().catch(() => ({}))) as ApiErrorBody
-    throw new Error(body.errors ? Object.values(body.errors).flat()[0] : body.message ?? 'Request failed')
+    throw new ApiError(response.status, body.errors ? Object.values(body.errors).flat()[0] : body.message ?? 'Request failed')
   }
 
   return response.status === 204 ? (undefined as T) : (response.json() as Promise<T>)

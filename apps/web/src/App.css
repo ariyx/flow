@@ -1,5 +1,0 @@
-.auth-page { align-items: center; display: flex; justify-content: center; min-height: 100vh; padding: 2rem; }
-.card { background: #fff; border: 1px solid #d7dbe2; border-radius: .75rem; box-shadow: 0 12px 32px rgb(15 23 42 / 8%); max-width: 28rem; padding: 2rem; width: 100%; }
-h1 { font-size: 1.25rem; margin: 0 0 1.5rem; } h2 { margin: 0 0 1rem; }
-form { display: grid; gap: 1rem; margin-bottom: 1rem; } label { display: grid; font-weight: 600; gap: .35rem; }
-input { border: 1px solid #9ca3af; border-radius: .35rem; font: inherit; padding: .6rem; } button { background: #312e81; border: 0; border-radius: .35rem; color: #fff; cursor: pointer; font: inherit; padding: .65rem 1rem; } button:disabled { opacity: .65; } a { color: #3730a3; } .error { color: #b91c1c; margin: 0; } code { word-break: break-all; }

@@ -1,87 +1,51 @@
 import { useEffect, useState } from 'react'
 import type { FormEvent } from 'react'
 import { BrowserRouter, Link, Navigate, Route, Routes, useNavigate, useSearchParams } from 'react-router-dom'
-import { api } from './api'
+import { ApiError, api } from './api'
 import type { Session } from './api'
+import { AppShell } from './components/AppShell'
+import { AuthLayout } from './components/AuthLayout'
+import { PasswordInput } from './components/PasswordInput'
 import { t } from './i18n'
-import './App.css'
 
-function Page({ children }: { children: React.ReactNode }) {
-  return <main className='auth-page'><section className='card'><h1>{t('app.title')}</h1>{children}</section></main>
-}
-
-function ErrorMessage({ message }: { message: string | null }) {
-  return message ? <p className='error' role='alert'>{message}</p> : null
-}
+const fieldClass = 'mt-2 h-11 w-full rounded-md border border-line bg-surface-raised px-3 text-sm text-ink outline-none placeholder:text-muted focus:border-accent'
+const primaryClass = 'mt-2 flex h-11 w-full items-center justify-center rounded-md bg-accent px-4 text-sm font-medium text-white transition-colors hover:bg-accent-hover disabled:opacity-60'
+function FormError({ message }: { message: string | null }) { return message ? <p className='rounded-md border border-danger/30 bg-danger/10 px-3 py-2 text-sm text-red-200' role='alert'>{message}</p> : null }
+function Field({ children, label, htmlFor }: { children: React.ReactNode; label: string; htmlFor: string }) { return <label className='grid gap-2 text-sm font-medium text-ink' htmlFor={htmlFor}>{label}{children}</label> }
+function Links({ children }: { children: React.ReactNode }) { return <div className='mt-6 text-center text-sm text-muted'>{children}</div> }
 
 function Login() {
-  const navigate = useNavigate()
-  const [params] = useSearchParams()
-  const [email, setEmail] = useState('')
-  const [password, setPassword] = useState('')
-  const [error, setError] = useState<string | null>(null)
-  const [loading, setLoading] = useState(false)
-
-  async function submit(event: FormEvent<HTMLFormElement>) {
-    event.preventDefault()
-    setLoading(true); setError(null)
-    try { await api.login({ email, password }); navigate('/app') } catch (reason) { setError(reason instanceof Error ? reason.message : t('auth.error')) } finally { setLoading(false) }
-  }
-
-  return <Page><h2>{t('auth.login')}</h2><form onSubmit={submit}>
-    <label>{t('auth.email')}<input type='email' value={email} onChange={(e) => setEmail(e.target.value)} required /></label>
-    <label>{t('auth.password')}<input type='password' value={password} onChange={(e) => setPassword(e.target.value)} required /></label>
-    <ErrorMessage message={error} /><button disabled={loading}>{loading ? t('auth.loading') : t('auth.login')}</button>
-  </form>{params.get('reset') && <p role='status'>{t('auth.passwordReset')}</p>}<p>{t('auth.noAccount')} <Link to='/register'>{t('auth.register')}</Link></p><Link to='/forgot-password'>{t('auth.forgot')}</Link></Page>
+  const navigate = useNavigate(); const [params] = useSearchParams(); const [email, setEmail] = useState(''); const [password, setPassword] = useState(''); const [error, setError] = useState<string | null>(null); const [loading, setLoading] = useState(false)
+  async function submit(event: FormEvent<HTMLFormElement>) { event.preventDefault(); setLoading(true); setError(null); try { await api.login({ email, password }); navigate('/app') } catch (reason) { setError(reason instanceof Error ? reason.message : t('auth.error')) } finally { setLoading(false) } }
+  return <AuthLayout description={t('auth.loginDescription')} eyebrow={t('app.title')} title={t('auth.login')}><form className='grid gap-5' onSubmit={submit}><Field htmlFor='email' label={t('auth.email')}><input autoComplete='email' className={fieldClass} id='email' onChange={(event) => setEmail(event.target.value)} required type='email' value={email} /></Field><Field htmlFor='password' label={t('auth.password')}><PasswordInput autoComplete='current-password' id='password' onChange={setPassword} value={password} /></Field><div className='flex justify-end'><Link className='text-sm text-accent hover:text-violet-300' to='/forgot-password'>{t('auth.forgot')}</Link></div><FormError message={error} /><button className={primaryClass} disabled={loading}>{loading ? t('auth.loading') : t('auth.login')}</button></form>{params.get('reset') && <p className='mt-4 text-sm text-success' role='status'>{t('auth.passwordReset')}</p>}<Links>{t('auth.noAccount')} <Link className='font-medium text-ink hover:text-accent' to='/register'>{t('auth.register')}</Link></Links></AuthLayout>
 }
 
 function Register() {
-  const navigate = useNavigate()
-  const [form, setForm] = useState({ name: '', email: '', password: '', password_confirmation: '' })
-  const [error, setError] = useState<string | null>(null)
-  const [loading, setLoading] = useState(false)
-  const update = (key: keyof typeof form, value: string) => setForm({ ...form, [key]: value })
-
-  async function submit(event: FormEvent<HTMLFormElement>) {
-    event.preventDefault()
-    setLoading(true); setError(null)
-    try { await api.register(form); navigate('/app') } catch (reason) { setError(reason instanceof Error ? reason.message : t('auth.error')) } finally { setLoading(false) }
-  }
-
-  return <Page><h2>{t('auth.register')}</h2><form onSubmit={submit}>
-    <label>{t('auth.name')}<input value={form.name} onChange={(e) => update('name', e.target.value)} required /></label>
-    <label>{t('auth.email')}<input type='email' value={form.email} onChange={(e) => update('email', e.target.value)} required /></label>
-    <label>{t('auth.password')}<input type='password' value={form.password} onChange={(e) => update('password', e.target.value)} minLength={8} required /></label>
-    <label>{t('auth.confirmPassword')}<input type='password' value={form.password_confirmation} onChange={(e) => update('password_confirmation', e.target.value)} minLength={8} required /></label>
-    <ErrorMessage message={error} /><button disabled={loading}>{loading ? t('auth.loading') : t('auth.register')}</button>
-  </form><p>{t('auth.haveAccount')} <Link to='/login'>{t('auth.login')}</Link></p></Page>
+  const navigate = useNavigate(); const [form, setForm] = useState({ name: '', email: '', password: '', password_confirmation: '' }); const [error, setError] = useState<string | null>(null); const [loading, setLoading] = useState(false); const update = (key: keyof typeof form, value: string) => setForm({ ...form, [key]: value })
+  async function submit(event: FormEvent<HTMLFormElement>) { event.preventDefault(); setLoading(true); setError(null); try { await api.register(form); navigate('/app') } catch (reason) { setError(reason instanceof Error ? reason.message : t('auth.error')) } finally { setLoading(false) } }
+  return <AuthLayout description={t('auth.registerDescription')} eyebrow={t('app.title')} title={t('auth.register')}><form className='grid gap-5' onSubmit={submit}><Field htmlFor='name' label={t('auth.name')}><input autoComplete='name' className={fieldClass} id='name' onChange={(event) => update('name', event.target.value)} required value={form.name} /></Field><Field htmlFor='email' label={t('auth.email')}><input autoComplete='email' className={fieldClass} id='email' onChange={(event) => update('email', event.target.value)} required type='email' value={form.email} /></Field><Field htmlFor='password' label={t('auth.password')}><PasswordInput autoComplete='new-password' id='password' minLength={8} onChange={(value) => update('password', value)} value={form.password} /></Field><Field htmlFor='password_confirmation' label={t('auth.confirmPassword')}><PasswordInput autoComplete='new-password' id='password_confirmation' minLength={8} onChange={(value) => update('password_confirmation', value)} value={form.password_confirmation} /></Field><FormError message={error} /><button className={primaryClass} disabled={loading}>{loading ? t('auth.loading') : t('auth.register')}</button></form><Links>{t('auth.haveAccount')} <Link className='font-medium text-ink hover:text-accent' to='/login'>{t('auth.login')}</Link></Links></AuthLayout>
 }
 
 function ForgotPassword() {
-  const [email, setEmail] = useState('')
-  const [sent, setSent] = useState(false)
-  const [error, setError] = useState<string | null>(null)
-  const [loading, setLoading] = useState(false)
+  const [email, setEmail] = useState(''); const [sent, setSent] = useState(false); const [error, setError] = useState<string | null>(null); const [loading, setLoading] = useState(false)
   async function submit(event: FormEvent<HTMLFormElement>) { event.preventDefault(); setLoading(true); setError(null); try { await api.forgotPassword(email); setSent(true) } catch (reason) { setError(reason instanceof Error ? reason.message : t('auth.error')) } finally { setLoading(false) } }
-  return <Page><h2>{t('auth.reset')}</h2><form onSubmit={submit}><label>{t('auth.email')}<input type='email' value={email} onChange={(e) => setEmail(e.target.value)} required /></label><ErrorMessage message={error} />{sent && <p role='status'>{t('auth.resetRequested')}</p>}<button disabled={loading}>{loading ? t('auth.loading') : t('auth.requestReset')}</button></form><Link to='/login'>{t('auth.login')}</Link></Page>
+  return <AuthLayout description={t('auth.forgotDescription')} eyebrow={t('app.title')} title={t('auth.reset')}><form className='grid gap-5' onSubmit={submit}><Field htmlFor='email' label={t('auth.email')}><input autoComplete='email' className={fieldClass} id='email' onChange={(event) => setEmail(event.target.value)} required type='email' value={email} /></Field><FormError message={error} />{sent && <p className='rounded-md border border-success/30 bg-success/10 px-3 py-2 text-sm text-emerald-200' role='status'>{t('auth.resetRequested')}</p>}<button className={primaryClass} disabled={loading}>{loading ? t('auth.loading') : t('auth.requestReset')}</button></form><Links><Link className='font-medium text-ink hover:text-accent' to='/login'>{t('auth.backToLogin')}</Link></Links></AuthLayout>
 }
 
 function ResetPassword() {
-  const navigate = useNavigate(); const [params] = useSearchParams()
-  const [password, setPassword] = useState(''); const [confirmation, setConfirmation] = useState(''); const [error, setError] = useState<string | null>(null); const [loading, setLoading] = useState(false)
+  const navigate = useNavigate(); const [params] = useSearchParams(); const [password, setPassword] = useState(''); const [confirmation, setConfirmation] = useState(''); const [error, setError] = useState<string | null>(null); const [loading, setLoading] = useState(false)
   async function submit(event: FormEvent<HTMLFormElement>) { event.preventDefault(); setLoading(true); setError(null); try { await api.resetPassword({ email: params.get('email') ?? '', token: params.get('token') ?? '', password, password_confirmation: confirmation }); navigate('/login?reset=1') } catch (reason) { setError(reason instanceof Error ? reason.message : t('auth.error')) } finally { setLoading(false) } }
-  return <Page><h2>{t('auth.reset')}</h2><form onSubmit={submit}><label>{t('auth.password')}<input type='password' value={password} onChange={(e) => setPassword(e.target.value)} minLength={8} required /></label><label>{t('auth.confirmPassword')}<input type='password' value={confirmation} onChange={(e) => setConfirmation(e.target.value)} minLength={8} required /></label><ErrorMessage message={error} /><button disabled={loading}>{loading ? t('auth.loading') : t('auth.reset')}</button></form></Page>
+  return <AuthLayout description={t('auth.resetDescription')} eyebrow={t('app.title')} title={t('auth.reset')}><form className='grid gap-5' onSubmit={submit}><Field htmlFor='password' label={t('auth.password')}><PasswordInput autoComplete='new-password' id='password' minLength={8} onChange={setPassword} value={password} /></Field><Field htmlFor='password_confirmation' label={t('auth.confirmPassword')}><PasswordInput autoComplete='new-password' id='password_confirmation' minLength={8} onChange={setConfirmation} value={confirmation} /></Field><FormError message={error} /><button className={primaryClass} disabled={loading}>{loading ? t('auth.loading') : t('auth.reset')}</button></form><Links><Link className='font-medium text-ink hover:text-accent' to='/login'>{t('auth.backToLogin')}</Link></Links></AuthLayout>
 }
 
-function Workspace() {
-  const navigate = useNavigate(); const [session, setSession] = useState<Session | null | undefined>(undefined)
-  useEffect(() => { api.session().then(setSession).catch(() => setSession(null)) }, [])
-  if (session === undefined) return <Page><p role='status'>{t('auth.loading')}</p></Page>
-  if (session === null) return <Navigate to='/login' replace />
-  async function logout() { await api.logout(); navigate('/login') }
-  return <Page><h2>{t('workspace.title')}</h2><p>{t('workspace.signedInAs')} {session.user.name} ({session.user.email})</p><p>{t('workspace.identifier')}: <code>{session.workspace.id}</code></p><p>{t('workspace.placeholder')}</p><button onClick={logout}>{t('auth.logout')}</button></Page>
+function Dashboard() {
+  const navigate = useNavigate(); const [session, setSession] = useState<Session | null>(null); const [error, setError] = useState(false); const [mobileOpen, setMobileOpen] = useState(false)
+  const load = () => { setError(false); api.session().then(setSession).catch((reason) => { if (reason instanceof ApiError && reason.status === 401) navigate('/login', { replace: true }); else setError(true) }) }
+  useEffect(() => { api.session().then(setSession).catch((reason) => { if (reason instanceof ApiError && reason.status === 401) navigate('/login', { replace: true }); else setError(true) }) }, [navigate])
+  if (!session) return <main className='grid min-h-svh place-items-center bg-canvas p-6 text-center text-sm text-muted'>{error ? <div><p>{t('dashboard.loadError')}</p><button className='mt-4 rounded-md border border-line px-3 py-2 text-ink hover:bg-surface-raised' onClick={load} type='button'>{t('dashboard.retry')}</button></div> : <p role='status'>{t('auth.loading')}</p>}</main>
+  async function logout() { try { await api.logout() } finally { navigate('/login', { replace: true }) } }
+  return <AppShell mobileOpen={mobileOpen} onCloseMobile={() => setMobileOpen(false)} onLogout={logout} onOpenMobile={() => setMobileOpen(true)} session={session}><section className='mx-auto max-w-6xl px-5 py-8 sm:px-8 sm:py-10'><header className='border-b border-line pb-6'><h1 className='text-2xl font-semibold tracking-tight'>{t('dashboard.title')}</h1><p className='mt-2 text-sm text-muted'>{t('dashboard.description')}</p></header><div className='grid min-h-[58svh] place-items-center py-10'><div className='max-w-md text-center'><EmptyGraphic /><h2 className='mt-7 text-lg font-semibold'>{t('dashboard.welcome')}</h2><p className='mt-3 text-sm leading-6 text-muted'>{t('dashboard.emptyTitle')}. {t('dashboard.emptyDescription')}</p></div></div></section></AppShell>
 }
 
-export default function App() {
-  return <BrowserRouter><Routes><Route path='/login' element={<Login />} /><Route path='/register' element={<Register />} /><Route path='/forgot-password' element={<ForgotPassword />} /><Route path='/reset-password' element={<ResetPassword />} /><Route path='/app' element={<Workspace />} /><Route path='*' element={<Navigate to='/app' replace />} /></Routes></BrowserRouter>
-}
+function EmptyGraphic() { return <svg aria-hidden='true' className='mx-auto h-28 w-44 text-line' fill='none' viewBox='0 0 176 112'><path d='M29 29h49l25 27h45M29 84l49-19 25-9h45' stroke='currentColor' strokeWidth='1.5' /><rect fill='#161C24' height='24' rx='5' stroke='#7C3AED' width='48' x='5' y='17' /><rect fill='#161C24' height='24' rx='5' stroke='currentColor' width='48' x='54' y='53' /><rect fill='#161C24' height='24' rx='5' stroke='currentColor' width='48' x='123' y='44' /><circle cx='78' cy='29' fill='#7C3AED' r='2.5' /><circle cx='103' cy='56' fill='#7C3AED' r='2.5' /></svg> }
+export default function App() { return <BrowserRouter><Routes><Route path='/login' element={<Login />} /><Route path='/register' element={<Register />} /><Route path='/forgot-password' element={<ForgotPassword />} /><Route path='/reset-password' element={<ResetPassword />} /><Route path='/app' element={<Dashboard />} /><Route path='*' element={<Navigate to='/app' replace />} /></Routes></BrowserRouter> }
