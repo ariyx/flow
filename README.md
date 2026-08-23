@@ -101,6 +101,8 @@ Laravel creates an untracked local `.env` from `.env.example` when needed. Gener
 php apps/api/artisan key:generate
 ```
 
+The web app uses Sanctum's same-party, cookie-based session flow against `http://localhost:8000`. When running outside Compose, keep `FRONTEND_URL` and `SANCTUM_STATEFUL_DOMAINS` aligned with the Vite origin (default: `http://localhost:5173`). Password-reset mail uses Laravel's configured mailer; the default local configuration writes it to logs and tests use Laravel's array mailer.
+
 The native setup can use separately installed PostgreSQL and Redis. The Docker Compose setup above supplies both dependencies and the required Laravel connection configuration.
 
 ### Run
@@ -120,10 +122,12 @@ The runtime has only a signal-aware process lifecycle for Docker Compose; it doe
 ```text
 npm --prefix apps/web run lint
 npm --prefix apps/web run build
+npm --prefix apps/web run test
 composer --working-dir=apps/api validate --strict
 php apps/api/artisan --version
 cd apps/api
 php artisan test
+composer run analyse
 cd apps/runtime && gofmt -d . && go vet ./... && go test ./... && go build ./...
 ```
 

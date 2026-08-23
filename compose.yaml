@@ -17,6 +17,8 @@ services:
       APP_ENV: local
       APP_DEBUG: "true"
       APP_URL: http://localhost:8000
+      FRONTEND_URL: http://localhost:5173
+      SANCTUM_STATEFUL_DOMAINS: localhost:5173
       DB_CONNECTION: pgsql
       DB_HOST: postgres
       DB_PORT: "5432"
@@ -35,6 +37,7 @@ services:
       - |
         set -e
         export APP_KEY="$$(php artisan key:generate --show --no-ansi)"
+        php artisan config:cache
         php artisan migrate --force
         exec php artisan serve --host=0.0.0.0 --port=8000
     depends_on:
@@ -47,6 +50,7 @@ services:
     volumes:
       - ./apps/api:/app
       - api_vendor:/app/vendor
+      - api_bootstrap_cache:/app/bootstrap/cache
 
   runtime:
     build:
@@ -87,6 +91,7 @@ services:
       - 127.0.0.1:6379:6379
 
 volumes:
+  api_bootstrap_cache:
   api_vendor:
   postgres_data:
   web_node_modules:
