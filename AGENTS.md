@@ -178,3 +178,18 @@ Delegation rules:
 - Evidence from executed commands and tests takes precedence over claims.
 - If an agent's generic instructions conflict with this repository's rules,
   follow this repository's rules.
+
+## UI implementation
+
+For non-trivial UI work, also read:
+
+- `docs/design/ui-foundation.md`
+- The relevant specification in `docs/design/screens/`
+- Its approved visual reference in `docs/design/references/`
+
+Design references define visual direction, not product scope.
+
+Product requirements, milestone acceptance criteria, architecture documentation,
+and accepted ADRs remain authoritative.
+
+Do not implement functionality merely because it appears in a visual reference.
