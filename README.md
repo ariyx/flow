@@ -18,7 +18,7 @@ Webilo Flow is a private, portfolio-oriented product alpha for creating Telegram
 - Email/password authentication
 - Automatic single workspace per account
 - Multiple Telegram bots per workspace
-- Automatic bot validation and webhook configuration
+- Bot token validation and encrypted token storage
 - Visual flow builder
 - Draft and immutable published versions
 - Go-based Telegram runtime

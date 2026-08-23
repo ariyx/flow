@@ -3,6 +3,14 @@ export type Session = {
   workspace: { id: string }
 }
 
+export type ConnectedBot = {
+  id: string
+  telegram_id: string
+  telegram_username: string | null
+  display_name: string
+  token_masked: string
+}
+
 type ApiErrorBody = { message?: string; errors?: Record<string, string[]> }
 
 export class ApiError extends Error {
@@ -57,4 +65,5 @@ export const api = {
   forgotPassword: (email: string) => post<void>('/api/v1/forgot-password', { email }),
   resetPassword: (body: { email: string; token: string; password: string; password_confirmation: string }) => post<void>('/api/v1/reset-password', body),
   session: () => request<Session>('/api/v1/session'),
+  connectBot: (token: string) => post<{ bot: ConnectedBot }>('/api/v1/bots', { token }),
 }
